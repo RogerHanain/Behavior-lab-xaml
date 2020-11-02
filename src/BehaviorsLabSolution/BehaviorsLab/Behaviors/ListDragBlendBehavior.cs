@@ -15,21 +15,27 @@ namespace BehaviorsLab.Behaviors
 
         protected override void OnAttached()
         {
-            AssociatedObject.PreviewMouseLeftButtonDown += ListBoxOnPreviewMouseLeftButtonDown;
-            AssociatedObject.PreviewMouseMove += ListBoxOnPreviewMouseMove;
-            AssociatedObject.PreviewMouseLeftButtonUp += ListBoxOnPreviewMouseLeftButtonUp;
+            AssociatedObject.PreviewMouseLeftButtonDown += AttachDraggedData;
+            
+            AssociatedObject.PreviewMouseMove += InitiateDrapDropOperation;
+            
+            AssociatedObject.PreviewMouseLeftButtonUp += SetDragDataToNull;
         }
 
-        private void ListBoxOnPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs mouseButtonEventArgs)
+        private void AttachDraggedData(object sender, MouseButtonEventArgs mouseButtonEventArgs)
         {
             _dragStart = mouseButtonEventArgs.GetPosition(null);
+            
             _dragSource = sender as ListBox;
+            
             if (_dragSource == null) return;
-            var i = IndexUnderDragCursor;
+            
+            var i = GetIndexOfTheSelectedItem(AssociatedObject);
+            
             _dragData = i != -1 ? _dragSource.Items.GetItemAt(i) : null;
         }
 
-        void ListBoxOnPreviewMouseMove(object sender, MouseEventArgs e)
+        void InitiateDrapDropOperation(object sender, MouseEventArgs e)
         {
             if (_dragData == null) return;
 
@@ -47,28 +53,25 @@ namespace BehaviorsLab.Behaviors
             }
         }
 
-        private void ListBoxOnPreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs mouseButtonEventArgs)
+        private void SetDragDataToNull(object sender, MouseButtonEventArgs mouseButtonEventArgs)
         {
             _dragData = null;
         }
 
-        int IndexUnderDragCursor
+        private int GetIndexOfTheSelectedItem(ListBox l)
         {
-            get
+            var index = -1;
+            for (var i = 0; i < l.Items.Count; ++i)
             {
-                var index = -1;
-                for (var i = 0; i < AssociatedObject.Items.Count; ++i)
-                {
-                    var item = AssociatedObject.ItemContainerGenerator.ContainerFromIndex(i) as ListBoxItem;
+                var item = l.ItemContainerGenerator.ContainerFromIndex(i) as ListBoxItem;
 
-                    if (item != null && item.IsMouseOver)
-                    {
-                        index = i;
-                        break;
-                    }
+                if (item != null && item.IsMouseOver)
+                {
+                    index = i;
+                    break;
                 }
-                return index;
             }
+            return index;
         }
     }
 }

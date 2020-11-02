@@ -11,10 +11,10 @@ namespace BehaviorsLab.Behaviors
         protected override void OnAttached()
         {
             AssociatedObject.AllowDrop = true;
-            AssociatedObject.Drop += AssociatedObjectOnDrop;
+            AssociatedObject.Drop += AddDataToTheListBoxItems;
         }
 
-        private void AssociatedObjectOnDrop(object sender, DragEventArgs dragEventArgs)
+        private void AddDataToTheListBoxItems(object sender, DragEventArgs dragEventArgs)
         {
             var dropTarget = sender as ListBox;
             if ((dropTarget != null) && (dragEventArgs.Data.GetDataPresent("Custom")))
